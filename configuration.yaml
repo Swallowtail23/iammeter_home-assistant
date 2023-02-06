@@ -53,15 +53,15 @@ homeassistant:
       state_class: measurement
 
 ## Customisations for "Time of Use" tariff sensors
-    sensor.grid_offpeak_energy_import_positive:
+    sensor.grid_offpeak_energy_import:
       last_reset: '1970-01-01T00:00:00+00:00'
       device_class: energy
       state_class: total_increasing
-    sensor.grid_peak_energy_import_positive:
+    sensor.grid_peak_energy_import:
       last_reset: '1970-01-01T00:00:00+00:00'
       device_class: energy
       state_class: total_increasing
-    sensor.grid_shoulder_energy_import_positive:
+    sensor.grid_shoulder_energy_import:
       last_reset: '1970-01-01T00:00:00+00:00'
       device_class: energy
       state_class: total_increasing
@@ -114,7 +114,7 @@ template:
             }}
           {% else %}
             {{ 
-              states('sensor.iammeter_1_modbus_power')|float * (-1.0)
+              states('sensor.iammeter_1_modbus_power')
             }}
           {% endif %}
         unique_id: 2452716747547
@@ -157,7 +157,7 @@ template:
         state_class: measurement
         state: >-
           {{ 
-            states('sensor.inverter_power') | float - 
+            states('sensor.inverter_power') | float + 
             states('sensor.grid_power') | float
           }}
         unique_id: 2452716747543
@@ -183,23 +183,23 @@ template:
         unique_id: 2452716747785
 
 ### Grid shoulder sensors
-#### Raw +ve / -ve
+#### Filtered, +ve when importing / -ve when exporting
       - name: "Grid shoulder power"
         unit_of_measurement: 'W'
         device_class: power
         state_class: measurement
         state: >-
           {% if 
-                states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none'] 
-          %}
-            {{ 
-              states('sensor.grid_shoulder_power') | float(0)
-            }}
-          {% elif
-                states('input_text.utility_current_electricity_tou_band') in ['peak', 'offpeak'] 
+              states('input_text.utility_current_electricity_tou_band') in ['peak', 'offpeak'] 
           %}
             {{ 
               0
+            }}
+          {% elif
+              states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none'] 
+          %}
+            {{ 
+              states('sensor.grid_shoulder_power') | float(0)
             }}
           {% else %}
             {{ 
@@ -208,16 +208,14 @@ template:
           {% endif %}
         unique_id: 2452716747753
 
-#### for graphs
-      - name: "Grid shoulder power import"
+#### Sensor entity for graphs - null if 0
+      - name: "Grid shoulder power graph"
         unit_of_measurement: 'W'
         device_class: power
         state_class: measurement
         state: >-
           {% if 
-            states('sensor.grid_shoulder_power') | float < 0
-              or
-            states('sensor.grid_shoulder_power') | float == 0
+            states('input_text.utility_current_electricity_tou_band') in ['peak', 'offpeak']
           %}
             null
           {% else %}
@@ -227,16 +225,14 @@ template:
           {% endif %}
         unique_id: 2452716747767
 
-#### +ve for Riemann integration sensor
-      - name: "Grid shoulder power import positive"
+#### for Riemann integration sensor (import)
+      - name: "Grid shoulder power import"
         unit_of_measurement: 'W'
         device_class: power
         state_class: measurement
         state: >-
           {% if 
             states('sensor.grid_shoulder_power') | float < 0
-              or
-            states('sensor.grid_shoulder_power') | float == 0
           %}
             0
           {% else %}
@@ -246,7 +242,7 @@ template:
           {% endif %}
         unique_id: 2452716747831
 
-#### always +ve
+#### for Riemann integration sensor (export)
       - name: "Grid shoulder power export"
         unit_of_measurement: 'W'
         device_class: power
@@ -260,29 +256,29 @@ template:
             0
           {% else %}
             {{
-              states('sensor.grid_shoulder_power') | float * (-1)
+              states('sensor.grid_shoulder_power') * (-1)
             }}
           {% endif %}
-        unique_id: 2452716747773
+        unique_id: 2452716747901
 
 ### Grid peak sensors
-#### Raw +ve / -ve
+#### Filtered, +ve when importing / -ve when exporting
       - name: "Grid peak power"
         unit_of_measurement: 'W'
         device_class: power
         state_class: measurement
         state: >-
           {% if 
-                states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none'] 
-          %}
-            {{ 
-              states('sensor.grid_peak_power') | float(0)
-            }}
-          {% elif
-                states('input_text.utility_current_electricity_tou_band') in ['shoulder', 'offpeak'] 
+              states('input_text.utility_current_electricity_tou_band') in ['shoulder', 'offpeak']
           %}
             {{ 
               0
+            }}
+          {% elif
+              states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none']
+          %}
+            {{ 
+              states('sensor.grid_peak_power') | float(0)
             }}
           {% else %}
             {{ 
@@ -291,16 +287,14 @@ template:
           {% endif %}
         unique_id: 2452716747755
 
-#### for graphs
-      - name: "Grid peak power import"
+#### Sensor entity for graphs - null if 0
+      - name: "Grid peak power graph"
         unit_of_measurement: 'W'
         device_class: power
         state_class: measurement
         state: >-
           {% if 
-            states('sensor.grid_peak_power') | float < 0
-              or
-            states('sensor.grid_peak_power') | float == 0
+            states('input_text.utility_current_electricity_tou_band') in ['shoulder', 'offpeak']
           %}
             null
           {% else %}
@@ -310,16 +304,14 @@ template:
           {% endif %}
         unique_id: 2452716747769
 
-#### +ve for Riemann integration sensor
-      - name: "Grid peak power import positive"
+#### for Riemann integration sensor (import)
+      - name: "Grid peak power import"
         unit_of_measurement: 'W'
         device_class: power
         state_class: measurement
         state: >-
           {% if 
             states('sensor.grid_peak_power') | float < 0
-              or
-            states('sensor.grid_peak_power') | float == 0
           %}
             0
           {% else %}
@@ -329,7 +321,7 @@ template:
           {% endif %}
         unique_id: 2452716747833
 
-#### always +ve
+#### for Riemann integration sensor (export)
       - name: "Grid peak power export"
         unit_of_measurement: 'W'
         device_class: power
@@ -338,7 +330,7 @@ template:
           {% if 
             states('sensor.grid_peak_power') | float > 0
               or
-            states('sensor.grid_peak_power') | float == 0
+            states('sensor.grid_shoulder_power') | float == 0
           %}
             0
           {% else %}
@@ -349,20 +341,20 @@ template:
         unique_id: 2452716747775
 
 ### Grid offpeak sensors
-#### Raw +ve / -ve
+#### Filtered, +ve when importing / -ve when exporting
       - name: "Grid offpeak power"
         unit_of_measurement: 'W'
         device_class: power
         state_class: measurement
         state: >-
           {% if 
-                states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none'] 
+              states('input_text.utility_current_electricity_tou_band') in ['shoulder', 'peak']
           %}
             {{ 
-              states('sensor.grid_offpeak_power') | float(0)
+              0
             }}
           {% elif
-                states('input_text.utility_current_electricity_tou_band') in ['shoulder', 'peak'] 
+              states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none']
           %}
             {{ 
               0
@@ -374,16 +366,14 @@ template:
           {% endif %}
         unique_id: 2452716747757
 
-#### for graphs
-      - name: "Grid offpeak power import"
+#### Sensor entity for graphs - null if 0
+      - name: "Grid offpeak power graph"
         unit_of_measurement: 'W'
         device_class: power
         state_class: measurement
         state: >-
           {% if 
-            states('sensor.grid_offpeak_power') | float < 0
-              or
-            states('sensor.grid_offpeak_power') | float == 0
+            states('input_text.utility_current_electricity_tou_band') in ['shoulder', 'peak']
           %}
             null
           {% else %}
@@ -393,16 +383,14 @@ template:
           {% endif %}
         unique_id: 2452716747771
 
-#### +ve for Riemann integration sensor
-      - name: "Grid offpeak power import positive"
+#### for Riemann integration sensor (import)
+      - name: "Grid offpeak power import"
         unit_of_measurement: 'W'
         device_class: power
         state_class: measurement
         state: >-
           {% if 
             states('sensor.grid_offpeak_power') | float < 0
-              or
-            states('sensor.grid_offpeak_power') | float == 0
           %}
             0
           {% else %}
@@ -412,7 +400,7 @@ template:
           {% endif %}
         unique_id: 2452716747836
 
-#### always +ve
+#### for Riemann integration sensor (export)
       - name: "Grid offpeak power export"
         unit_of_measurement: 'W'
         device_class: power
@@ -421,7 +409,7 @@ template:
           {% if 
             states('sensor.grid_offpeak_power') | float > 0
               or
-            states('sensor.grid_offpeak_power') | float == 0
+            states('sensor.grid_shoulder_power') | float == 0
           %}
             0
           {% else %}
@@ -599,29 +587,12 @@ template:
 # Old format sensors
 sensor:
 ## Electricity TOU energy sensors
+### Shoulder
   - platform: integration
-    name: Grid Offpeak Energy Import Positive
-    source: sensor.grid_offpeak_power_import_positive
-    unit_prefix: k
-    unique_id: 2452716747761
-
-  - platform: integration
-    name: Grid Shoulder Energy Import Positive
-    source: sensor.grid_shoulder_power_import_positive
+    name: Grid Shoulder Energy Import
+    source: sensor.grid_shoulder_power_import
     unit_prefix: k
     unique_id: 2452716747763
-
-  - platform: integration
-    name: Grid Peak Energy Import Positive
-    source: sensor.grid_peak_power_import_positive
-    unit_prefix: k
-    unique_id: 2452716747765
-
-  - platform: integration
-    name: Grid Offpeak Energy Export
-    source: sensor.grid_offpeak_power_export
-    unit_prefix: k
-    unique_id: 2452716747779
 
   - platform: integration
     name: Grid Shoulder Energy Export
@@ -629,16 +600,31 @@ sensor:
     unit_prefix: k
     unique_id: 2452716747781
 
+### Off-peak
+  - platform: integration
+    name: Grid Offpeak Energy Import
+    source: sensor.grid_offpeak_power_import
+    unit_prefix: k
+    unique_id: 2452716747761
+
+  - platform: integration
+    name: Grid Offpeak Energy Export
+    source: sensor.grid_offpeak_power_export
+    unit_prefix: k
+    unique_id: 2452716747779
+
+### Peak
+  - platform: integration
+    name: Grid Peak Energy Import
+    source: sensor.grid_peak_power_import
+    unit_prefix: k
+    unique_id: 2452716747765
+
   - platform: integration
     name: Grid Peak Energy Export
     source: sensor.grid_peak_power_export
     unit_prefix: k
     unique_id: 2452716747783
-
-binary_sensor:
-
-  - platform: template
-    sensors:
 
 ## Modbus sensors for Iammeter
 modbus:
