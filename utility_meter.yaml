@@ -1,0 +1,179 @@
+daily_supply_fee:
+    source: input_number.supply_charge
+    name: Daily supply fee
+    unique_id: 2452716747803
+    cycle: daily
+    tariffs:
+      - charge
+    
+daily_supply_fee_correction:
+    source: input_number.supply_charge
+    name: Daily supply fee correction
+    unique_id: 2452716747805
+    cycle: daily
+    tariffs:
+      - count
+
+solar_energy_hourly:
+    source: sensor.solar_energy
+    name: "Solar yield energy (hourly)"
+    unique_id: 2452716747847
+    cycle: hourly
+
+solar_energy_daily:
+    source: sensor.solar_energy
+    name: "Solar yield energy (daily)"
+    unique_id: 2452716747843
+    cycle: daily
+
+solar_energy_monthly:
+    source: sensor.solar_energy
+    name: "Solar yield energy (monthly)"
+    unique_id: 2452716747845
+    cycle: monthly
+
+energy_from_inverter_hourly:
+    source: sensor.energy_from_inverter
+    name: "Energy from inverter (hourly)"
+    unique_id: 2452716747883
+    cycle: hourly
+
+energy_from_inverter_daily:
+    source: sensor.energy_from_inverter
+    name: "Energy from inverter (daily)"
+    unique_id: 2452716747885
+    cycle: daily
+
+energy_from_inverter_monthly:
+    source: sensor.energy_from_inverter
+    name: "Energy from inverter (monthly)"
+    unique_id: 2452716747887
+    cycle: monthly
+
+energy_to_inverter_hourly:
+    source: sensor.energy_to_inverter
+    name: "Energy to inverter (hourly)"
+    unique_id: 2452716747889
+    cycle: hourly
+
+energy_to_inverter_daily:
+    source: sensor.energy_to_inverter
+    name: "Energy to inverter (daily)"
+    unique_id: 2452716747891
+    cycle: daily
+
+energy_to_inverter_monthly:
+    source: sensor.energy_to_inverter
+    name: "Energy to inverter (monthly)"
+    unique_id: 2452716747893
+    cycle: monthly
+
+grid_consumption_energy_hourly:
+    source: sensor.grid_consumption_energy
+    name: "Grid consumption energy (hourly)"
+    unique_id: 2452716747849
+    cycle: hourly
+
+grid_consumption_energy_daily:
+    source: sensor.grid_consumption_energy
+    name: "Grid consumption energy (daily)"
+    unique_id: 2452716747807
+    cycle: daily
+
+grid_consumption_energy_monthly:
+    source: sensor.grid_consumption_energy
+    name: "Grid consumption energy (monthly)"
+    unique_id: 2452716747809
+    cycle: monthly
+    
+exported_energy_hourly:
+    source: sensor.exported_energy
+    name: "Exported energy (hourly)"
+    unique_id: 2452716747851
+    cycle: hourly
+    
+exported_energy_daily:
+    source: sensor.exported_energy
+    name: "Exported energy (daily)"
+    unique_id: 2452716747811
+    cycle: daily
+
+exported_energy_monthly:
+    source: sensor.exported_energy
+    name: "Exported energy (monthly)"
+    unique_id: 2452716747813
+    cycle: monthly
+
+self_used_energy_hourly:
+    source: sensor.self_use_energy
+    name: "Self used energy (hourly)"
+    unique_id: 2452716747867
+    cycle: hourly
+
+self_used_energy_daily:
+    source: sensor.self_use_energy
+    name: "Self used energy (daily)"
+    unique_id: 2452716747869
+    cycle: daily
+
+self_used_energy_monthly:
+    source: sensor.self_use_energy
+    name: "Self used energy (monthly)"
+    unique_id: 2452716747871
+    cycle: monthly
+
+consumed_energy_hourly:
+    source: sensor.consumed_energy
+    name: "Consumed energy (hourly)"
+    unique_id: 2452716747873
+    cycle: hourly
+
+consumed_energy_daily:
+    source: sensor.consumed_energy
+    name: "Consumed energy (daily)"
+    unique_id: 2452716747875
+    cycle: daily
+
+consumed_energy_monthly:
+    source: sensor.consumed_energy
+    name: "Consumed energy (monthly)"
+    unique_id: 2452716747877
+    cycle: monthly
+
+ac_energy_daily:
+    source: sensor.ac_energy
+    unique_id: 2452716747819
+    cycle: daily
+
+grid_consumption_tou_energy_hourly:
+    name: "Hourly time of use energy"
+    unique_id: 2452716747853
+    source: sensor.grid_consumption_energy
+    cycle: hourly
+    tariffs:
+      - peak
+      - offpeak
+      - shoulder_am
+      - shoulder_pm
+
+grid_consumption_tou_energy_daily:
+    name: "Daily time of use energy"
+    unique_id: 2452716747799
+    source: sensor.grid_consumption_energy
+    cycle: daily
+    tariffs:
+      - peak
+      - offpeak
+      - shoulder_am
+      - shoulder_pm
+
+grid_consumption_tou_energy_monthly:
+    name: "Monthly time of use energy"
+    unique_id: 2452716747801
+    source: sensor.grid_consumption_energy
+    cycle: monthly
+    tariffs:
+      - peak
+      - offpeak
+      - shoulder_am
+      - shoulder_pm
