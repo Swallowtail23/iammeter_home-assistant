@@ -96,10 +96,6 @@ template:
             {{ 
               states('sensor.inverter_power') 
             }}
-          {% elif states('sensor.iammeter_3_modbus_power_b')|float < 0 %}
-              {{ 
-                0
-              }}
           {% else %}
             {{
               states('sensor.iammeter_3_modbus_power_b')
