@@ -1,6 +1,6 @@
 # Iammeter setup with Home Assistant
 
-Full dump of my energy management in Home Assistant, with Iammeter meters.
+Full details of my energy management in Home Assistant, with Iammeter meters.
 
 I have a WEM3080T and a WEM3080, setup as follows:
 
@@ -11,6 +11,8 @@ WEM3080T:
 
 WEM3080:
 - CT clamp on main grid feed
+
+I have 13.3kW of solar panels, connected to a GE 10kW hybrid inverter (GoodWe device, sold under GE brand)
 
 ## Helpers
 
@@ -24,3 +26,4 @@ WEM3080:
 - input_number.electricity_offpeak_rate
 - input_number.electricity_peak_rate
 - input_number.electricity_shoulder_rate
+- input_number.supply_charge
