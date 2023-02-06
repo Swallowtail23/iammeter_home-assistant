@@ -1,6 +1,6 @@
 daily_supply_fee:
     source: input_number.supply_charge
-    name: Daily supply fee
+    name: "Supply fee charge (daily)"
     unique_id: 2452716747803
     cycle: daily
     tariffs:
@@ -8,7 +8,7 @@ daily_supply_fee:
     
 daily_supply_fee_correction:
     source: input_number.supply_charge
-    name: Daily supply fee correction
+    name: "Supply fee correction (daily)"
     unique_id: 2452716747805
     cycle: daily
     tariffs:
