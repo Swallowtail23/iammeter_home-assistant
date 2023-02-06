@@ -1,5 +1,7 @@
 # Energy monitoring (with Iammeters) setup with Home Assistant
 
+# Work in progress!!!! Not yet matching current and working.
+
 Full details of my energy management in Home Assistant, with Iammeter meters.
 
 ## Local energy provider setup
