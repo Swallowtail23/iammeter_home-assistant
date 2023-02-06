@@ -31,6 +31,10 @@ homeassistant:
       last_reset: '1970-01-01T00:00:00+00:00'
       device_class: energy
       state_class: total_increasing
+    sensor.iammeter_3_modbus_exportgrid_b:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
     sensor.iammeter_3_modbus_importenergy_c:
       last_reset: '1970-01-01T00:00:00+00:00'
       device_class: energy
