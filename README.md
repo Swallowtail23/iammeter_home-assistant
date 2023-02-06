@@ -1,7 +1,5 @@
 # Energy monitoring (with Iammeters) setup with Home Assistant
 
-# Work in progress!!!! Not yet matching current and working.
-
 Full details of my energy management in Home Assistant, with Iammeter meters.
 
 ## Local energy provider setup
@@ -14,9 +12,10 @@ WEM3080T:
 - A: CT clamp on hot water circuit
 - B: CT clamp on inverter feed
 - C: CT clamp on air conditioning circuit
-
 WEM3080:
 - CT clamp on main grid feed
+
+Make sure clamps are correctly aligned. Inverter feed should result in +ve power flow when panels are producing power; and grid feed should be +ve when drawing from the grid (i.e. power inbound to your home is +ve).
 
 I have 13.3kW of solar panels, connected to a GE 10kW hybrid inverter (GoodWe device, sold under GE brand)
 No battery at the moment, so 'solar energy' = 'inverter in energy', but I am altering sensors to allow for accurate tracking of battery energy charging (potentially from grid or solar) and discharging, in which case 'energy from inverter' + 'solar energy to battery' = 'solar energy', so the sensor definitions are changing to reflect that.
