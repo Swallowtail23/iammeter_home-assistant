@@ -1,0 +1,83 @@
+- id: '1674449658193'
+  alias: 'Utility: Electricity TOU tariff changes'
+  description: 'Utility: Electricity TOU tariff changes'
+  trigger:
+  - platform: time
+    at: input_datetime.utility_electricity_tou_am_shoulder_on
+    id: '1'
+  - platform: time
+    at: input_datetime.utility_electricity_tou_pm_peak_on
+    id: '2'
+  - platform: time
+    at: input_datetime.utility_electricity_tou_pm_shoulder_on
+    id: '3'
+  - platform: time
+    at: input_datetime.utility_electricity_tou_pm_offpeak_on
+    id: '4'
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: '1'
+      sequence:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.utility_current_electricity_tou_band
+        data:
+          value: shoulder
+      - service: select.select_option
+        target:
+          entity_id:
+          - select.grid_consumption_tou_energy_daily
+          - select.grid_consumption_tou_energy_monthly
+        data:
+          option: shoulder_am
+    - conditions:
+      - condition: trigger
+        id: '2'
+      sequence:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.utility_current_electricity_tou_band
+        data:
+          value: peak
+      - service: select.select_option
+        target:
+          entity_id:
+          - select.grid_consumption_tou_energy_daily
+          - select.grid_consumption_tou_energy_monthly
+        data:
+          option: peak
+    - conditions:
+      - condition: trigger
+        id: '3'
+      sequence:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.utility_current_electricity_tou_band
+        data:
+          value: shoulder
+      - service: select.select_option
+        target:
+          entity_id:
+          - select.grid_consumption_tou_energy_daily
+          - select.grid_consumption_tou_energy_monthly
+        data:
+          option: shoulder_pm
+    - conditions:
+      - condition: trigger
+        id: '4'
+      sequence:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.utility_current_electricity_tou_band
+        data:
+          value: offpeak
+      - service: select.select_option
+        target:
+          entity_id:
+          - select.grid_consumption_tou_energy_daily
+          - select.grid_consumption_tou_energy_monthly
+        data:
+          option: offpeak
+  mode: single
