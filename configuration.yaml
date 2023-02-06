@@ -1,0 +1,1018 @@
+#############################################################
+#### Configuration.yaml content for energy-related items ####
+#############################################################
+
+## Lines for influxdb for improved long-term energy data handling
+influxdb:
+  host: a0d7b954-influxdb
+  port: 8086
+  database: homeassistant
+  username: influx
+  password: !secret influx_password
+  max_retries: 3
+  default_measurement: state
+
+## Required customisation for Iammeter modbus sensors
+homeassistant:
+  customize:
+    sensor.iammeter_1_modbus_importenergy:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.iammeter_1_modbus_exportgrid:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.iammeter_3_modbus_importenergy_a:
+      last_reset: '2023-01-19T18:30:00+10:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.iammeter_3_modbus_importenergy_b:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.iammeter_3_modbus_importenergy_c:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.iammeter_1_modbus_power:
+      device_class: power
+      state_class: measurement
+    sensor.iammeter_3_modbus_power_a:
+      device_class: power
+      state_class: measurement
+    sensor.iammeter_3_modbus_power_b:
+      device_class: power
+      state_class: measurement
+    sensor.iammeter_3_modbus_power_c:
+      device_class: power
+      state_class: measurement
+
+## Customisations for "Time of Use" tariff sensors
+    sensor.grid_offpeak_energy_import_positive:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.grid_peak_energy_import_positive:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.grid_shoulder_energy_import_positive:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.grid_offpeak_energy_export:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.grid_peak_energy_export:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.grid_shoulder_energy_export:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+
+# Input number for Daily Supply Charge offset - separate file
+input_number: !include input_number.yaml
+
+# Utility meters - separate file
+utility_meter: !include utility_meter.yaml
+
+# Filtered sensors to ensure Iammeter sensors are integrated correctly
+template:
+  - sensor:
+      - name: "Inverter power"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if states('sensor.iammeter_3_modbus_power_b') in ['unavailable', 'unknown', 'none'] %}
+            {{ 
+              states('sensor.inverter_power') 
+            }}
+          {% elif states('sensor.iammeter_3_modbus_power_b')|float < 0 %}
+              {{ 
+                0
+              }}
+          {% else %}
+            {{
+              states('sensor.iammeter_3_modbus_power_b')
+            }}
+          {% endif %}
+        unique_id: 2452716747545
+
+      - name: "Grid power"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none'] %}
+            {{ 
+              states('sensor.grid_power')
+            }}
+          {% else %}
+            {{ 
+              states('sensor.iammeter_1_modbus_power')|float * (-1.0)
+            }}
+          {% endif %}
+        unique_id: 2452716747547
+
+      - name: "Hot water power"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if states('sensor.iammeter_3_modbus_power_a') in ['unavailable', 'unknown', 'none'] %}
+            {{ 
+              states('sensor.hot_water_power') 
+            }}
+          {% else %}
+            {{ 
+              states('sensor.iammeter_3_modbus_power_a')
+            }}
+          {% endif %}
+        unique_id: 2452716747561
+
+      - name: "AC power"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if states('sensor.iammeter_3_modbus_power_c') in ['unavailable', 'unknown', 'none'] %}
+            {{ 
+              states('sensor.ac_power') 
+            }}
+          {% else %}
+            {{ 
+              states('sensor.iammeter_3_modbus_power_c')
+            }}
+          {% endif %}
+        unique_id: 2452716747727
+
+      - name: "Load power"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {{ 
+            states('sensor.inverter_power') | float - 
+            states('sensor.grid_power') | float
+          }}
+        unique_id: 2452716747543
+
+## Electricity time of use sensors
+### Rate sensor
+      - name: "Current electricity TOU rate"
+        state: >-
+          {% if states('input_text.utility_current_electricity_tou_band') == 'offpeak' %}
+            {{ 
+              states('input_number.electricity_offpeak_rate') 
+            }}
+          {% elif states('input_text.utility_current_electricity_tou_band') == 'peak' %}
+            {{ 
+              states('input_number.electricity_peak_rate') 
+            }}
+          {% else %}
+            {{ 
+              states('input_number.electricity_shoulder_rate') 
+            }}
+          {% endif %}
+        unit_of_measurement: AUD/kWh
+        unique_id: 2452716747785
+
+### Grid shoulder sensors
+#### Raw +ve / -ve
+      - name: "Grid shoulder power"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+                states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none'] 
+          %}
+            {{ 
+              states('sensor.grid_shoulder_power') | float(0)
+            }}
+          {% elif
+                states('input_text.utility_current_electricity_tou_band') in ['peak', 'offpeak'] 
+          %}
+            {{ 
+              0
+            }}
+          {% else %}
+            {{ 
+              states('sensor.iammeter_1_modbus_power')
+            }}
+          {% endif %}
+        unique_id: 2452716747753
+
+#### for graphs
+      - name: "Grid shoulder power import"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+            states('sensor.grid_shoulder_power') | float < 0
+              or
+            states('sensor.grid_shoulder_power') | float == 0
+          %}
+            null
+          {% else %}
+            {{
+              states('sensor.grid_shoulder_power')
+            }}
+          {% endif %}
+        unique_id: 2452716747767
+
+#### +ve for Riemann integration sensor
+      - name: "Grid shoulder power import positive"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+            states('sensor.grid_shoulder_power') | float < 0
+              or
+            states('sensor.grid_shoulder_power') | float == 0
+          %}
+            0
+          {% else %}
+            {{
+              states('sensor.grid_shoulder_power')
+            }}
+          {% endif %}
+        unique_id: 2452716747831
+
+#### always +ve
+      - name: "Grid shoulder power export"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+            states('sensor.grid_shoulder_power') | float > 0
+              or
+            states('sensor.grid_shoulder_power') | float == 0
+          %}
+            0
+          {% else %}
+            {{
+              states('sensor.grid_shoulder_power') | float * (-1)
+            }}
+          {% endif %}
+        unique_id: 2452716747773
+
+### Grid peak sensors
+#### Raw +ve / -ve
+      - name: "Grid peak power"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+                states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none'] 
+          %}
+            {{ 
+              states('sensor.grid_peak_power') | float(0)
+            }}
+          {% elif
+                states('input_text.utility_current_electricity_tou_band') in ['shoulder', 'offpeak'] 
+          %}
+            {{ 
+              0
+            }}
+          {% else %}
+            {{ 
+              states('sensor.iammeter_1_modbus_power')
+            }}
+          {% endif %}
+        unique_id: 2452716747755
+
+#### for graphs
+      - name: "Grid peak power import"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+            states('sensor.grid_peak_power') | float < 0
+              or
+            states('sensor.grid_peak_power') | float == 0
+          %}
+            null
+          {% else %}
+            {{
+              states('sensor.grid_peak_power')
+            }}
+          {% endif %}
+        unique_id: 2452716747769
+
+#### +ve for Riemann integration sensor
+      - name: "Grid peak power import positive"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+            states('sensor.grid_peak_power') | float < 0
+              or
+            states('sensor.grid_peak_power') | float == 0
+          %}
+            0
+          {% else %}
+            {{
+              states('sensor.grid_peak_power')
+            }}
+          {% endif %}
+        unique_id: 2452716747833
+
+#### always +ve
+      - name: "Grid peak power export"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+            states('sensor.grid_peak_power') | float > 0
+              or
+            states('sensor.grid_peak_power') | float == 0
+          %}
+            0
+          {% else %}
+            {{
+              states('sensor.grid_peak_power') | float * (-1)
+            }}
+          {% endif %}
+        unique_id: 2452716747775
+
+### Grid offpeak sensors
+#### Raw +ve / -ve
+      - name: "Grid offpeak power"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+                states('sensor.iammeter_1_modbus_power') in ['unavailable', 'unknown', 'none'] 
+          %}
+            {{ 
+              states('sensor.grid_offpeak_power') | float(0)
+            }}
+          {% elif
+                states('input_text.utility_current_electricity_tou_band') in ['shoulder', 'peak'] 
+          %}
+            {{ 
+              0
+            }}
+          {% else %}
+            {{ 
+              states('sensor.iammeter_1_modbus_power')
+            }}
+          {% endif %}
+        unique_id: 2452716747757
+
+#### for graphs
+      - name: "Grid offpeak power import"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+            states('sensor.grid_offpeak_power') | float < 0
+              or
+            states('sensor.grid_offpeak_power') | float == 0
+          %}
+            null
+          {% else %}
+            {{
+              states('sensor.grid_offpeak_power')
+            }}
+          {% endif %}
+        unique_id: 2452716747771
+
+#### +ve for Riemann integration sensor
+      - name: "Grid offpeak power import positive"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+            states('sensor.grid_offpeak_power') | float < 0
+              or
+            states('sensor.grid_offpeak_power') | float == 0
+          %}
+            0
+          {% else %}
+            {{
+              states('sensor.grid_offpeak_power')
+            }}
+          {% endif %}
+        unique_id: 2452716747836
+
+#### always +ve
+      - name: "Grid offpeak power export"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% if 
+            states('sensor.grid_offpeak_power') | float > 0
+              or
+            states('sensor.grid_offpeak_power') | float == 0
+          %}
+            0
+          {% else %}
+            {{
+              states('sensor.grid_offpeak_power') | float * (-1)
+            }}
+          {% endif %}
+        unique_id: 2452716747835
+
+# Filtered Iammeter energy sensors (if n/a, sensors are unavailable)
+      - name: "Grid consumption energy"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        state_class: total_increasing
+        availability: >-
+          {{ states('sensor.iammeter_1_modbus_importenergy') not in ['unavailable', 'unknown', 'none', 0] }}
+        state: >-
+          {{ states('sensor.iammeter_1_modbus_importenergy') | float }}
+        unique_id: 2452716747741
+
+      - name: "Exported energy"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        state_class: total_increasing
+        availability: >-
+          {{ states('sensor.iammeter_1_modbus_exportgrid') not in ['unavailable', 'unknown', 'none', 0] }}
+        state: >-
+          {{ states('sensor.iammeter_1_modbus_exportgrid') | float }}
+        unique_id: 2452716747555
+
+      - name: "Hot water energy"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        state_class: total_increasing
+        availability: >-
+          {{ states('sensor.iammeter_3_modbus_importenergy_a') not in ['unavailable', 'unknown', 'none', 0] }}
+        state: >-
+          {{ states('sensor.iammeter_3_modbus_importenergy_a') | float }}
+        unique_id: 2452716747743
+
+    ## This one will need to be updated once new inverter is online, to its solar production value
+      - name: "Solar yield energy"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        state_class: total_increasing
+        availability: >-
+          {{ states('sensor.iammeter_3_modbus_importenergy_b') not in ['unavailable', 'unknown', 'none', 0] }}
+        state: >-
+          {{ states('sensor.iammeter_3_modbus_importenergy_b')|float }}
+        unique_id: 2452716747557
+    ##
+
+      - name: "Energy from inverter"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        state_class: total_increasing
+        availability: >-
+          {{ states('sensor.iammeter_3_modbus_importenergy_b') not in ['unavailable', 'unknown', 'none', 0] }}
+        state: >-
+          {{ states('sensor.iammeter_3_modbus_importenergy_b')|float }}
+        unique_id: 2452716747861
+
+      - name: "Energy to inverter"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        state_class: total_increasing
+        availability: >-
+          {{ states('sensor.iammeter_3_modbus_exportgrid_b') not in ['unavailable', 'unknown', 'none', 0] }}
+        state: >-
+          {{ states('sensor.iammeter_3_modbus_exportgrid_b')|float }}
+        unique_id: 2452716747863
+
+      - name: "AC energy"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        state_class: total_increasing
+        availability: >-
+          {{ states('sensor.iammeter_3_modbus_importenergy_c') not in ['unavailable', 'unknown', 'none', 0] }}
+        state: >-
+          {{ states('sensor.iammeter_3_modbus_importenergy_c')|float }}
+        unique_id: 2452716747725
+
+# Filtered calculated energy sensors (if n/a, sensors are unavailable)
+      - name: "Self used energy"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        state_class: total_increasing
+        availability: >-
+          {{
+            states('sensor.energy_from_inverter') not in ['unavailable', 'unknown', 'none', 0]
+              and 
+            states('sensor.exported_energy') not in ['unavailable', 'unknown', 'none', 0]
+          }}
+        state: >-
+          {{ 
+            states('sensor.energy_from_inverter')|float -
+            states('sensor.exported_energy')|float
+          }}
+        unique_id: 2452716747559
+
+      - name: "Consumed energy"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        state_class: total_increasing
+        availability: >-
+          {{
+            states('sensor.grid_consumption_energy') not in ['unavailable', 'unknown', 'none', 0] 
+              and 
+            states('sensor.energy_from_inverter') not in ['unavailable', 'unknown', 'none', 0]
+              and
+            states('sensor.exported_energy') not in ['unavailable', 'unknown', 'none', 0]
+          }}
+        state: >-
+          {{ 
+            states('sensor.grid_consumption_energy')|float + 
+            states('sensor.energy_from_inverter')|float - 
+            states('sensor.exported_energy')|float 
+          }}
+        unique_id: 2452716747563
+
+      - name: "Self consumption rate (hourly)"
+        unit_of_measurement: '%'
+        state_class: measurement
+        availability: >-
+          {{
+            states('sensor.solar_energy_hourly') not in ['unavailable', 'unknown', 'none'] 
+              and 
+            states('sensor.self_used_energy_hourly') not in ['unavailable', 'unknown', 'none']
+          }}
+        state: >-
+          {{ 
+            none if states('sensor.solar_energy_hourly')|float(0) == 0 
+            else
+            ((states('sensor.self_used_energy_hourly')|float / 
+            states('sensor.solar_energy_hourly')|float) *100) | round(1)
+          }}
+        unique_id: 2452716747895
+
+      - name: "Self consumption rate (daily)"
+        unit_of_measurement: '%'
+        state_class: measurement
+        availability: >-
+          {{
+            states('sensor.solar_energy_daily') not in ['unavailable', 'unknown', 'none'] 
+              and 
+            states('sensor.self_used_energy_daily') not in ['unavailable', 'unknown', 'none']
+          }}
+        state: >-
+          {{ 
+            none if states('sensor.solar_energy_daily')|float(0) == 0 
+            else
+            ((states('sensor.self_used_energy_daily')|float / 
+            states('sensor.solar_energy_daily')|float) *100) | round(1)
+          }}
+        unique_id: 2452716747897
+
+      - name: "Self consumption rate (monthly)"
+        unit_of_measurement: '%'
+        state_class: measurement
+        availability: >-
+          {{
+            states('sensor.solar_energy_monthly') not in ['unavailable', 'unknown', 'none'] 
+              and 
+            states('sensor.self_used_energy_monthly') not in ['unavailable', 'unknown', 'none']
+          }}
+        state: >-
+          {{ 
+            none if states('sensor.solar_energy_monthly')|float(0) == 0 
+            else
+            ((states('sensor.self_used_energy_monthly')|float / 
+            states('sensor.solar_energy_monthly')|float) *100) | round(1)
+          }}
+        unique_id: 2452716747899
+
+# Old format sensors
+sensor:
+## Electricity TOU energy sensors
+  - platform: integration
+    name: Grid Offpeak Energy Import Positive
+    source: sensor.grid_offpeak_power_import_positive
+    unit_prefix: k
+    unique_id: 2452716747761
+
+  - platform: integration
+    name: Grid Shoulder Energy Import Positive
+    source: sensor.grid_shoulder_power_import_positive
+    unit_prefix: k
+    unique_id: 2452716747763
+
+  - platform: integration
+    name: Grid Peak Energy Import Positive
+    source: sensor.grid_peak_power_import_positive
+    unit_prefix: k
+    unique_id: 2452716747765
+
+  - platform: integration
+    name: Grid Offpeak Energy Export
+    source: sensor.grid_offpeak_power_export
+    unit_prefix: k
+    unique_id: 2452716747779
+
+  - platform: integration
+    name: Grid Shoulder Energy Export
+    source: sensor.grid_shoulder_power_export
+    unit_prefix: k
+    unique_id: 2452716747781
+
+  - platform: integration
+    name: Grid Peak Energy Export
+    source: sensor.grid_peak_power_export
+    unit_prefix: k
+    unique_id: 2452716747783
+
+binary_sensor:
+
+  - platform: template
+    sensors:
+
+## Modbus sensors for Iammeter
+modbus:
+### Iammeter 1 (single)
+  - name: Iammeter_1_modbus
+    type: tcp
+    host: 192.168.20.12
+    port: 502
+    sensors:
+      - name: Iammeter_1_modbus_Voltage
+        unique_id: 2452716747595
+        slave: 1
+        address: 0
+        input_type: holding
+        unit_of_measurement: V
+        device_class: voltage
+        state_class: measurement
+        count: 1
+        scale: 0.01
+        offset: 0
+        precision: 1
+        data_type: uint16
+      - name: Iammeter_1_modbus_Current
+        unique_id: 2452716747597
+        slave: 1
+        address: 1
+        input_type: holding
+        unit_of_measurement: A
+        device_class: current
+        state_class: measurement
+        count: 1
+        scale: 0.01
+        offset: 0
+        precision: 1
+        data_type: uint16
+      - name: Iammeter_1_modbus_Power
+        unique_id: 2452716747599
+        slave: 1
+        address: 2
+        input_type: holding
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        count: 2
+        scale: 1
+        offset: 0
+        precision: 0
+        data_type: int32
+        scan_interval: 5
+      - name: Iammeter_1_modbus_ImportEnergy
+        unique_id: 2452716747601
+        slave: 1
+        address: 4
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.0003125
+        offset: 0
+        precision: 3
+        data_type: uint32
+      - name: Iammeter_1_modbus_ExportGrid
+        unique_id: 2452716747603
+        slave: 1
+        address: 6
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.0003125
+        offset: 0
+        precision: 3
+        data_type: uint32
+
+### Iammeter 3 (3-phase)
+  - name: Iammeter_3_modbus
+    type: tcp
+    host: 192.168.20.13
+    port: 502
+    sensors:
+      - name: Iammeter_3_modbus_Voltage_A
+        unique_id: 2452716747605
+        slave: 1
+        address: 0
+        input_type: holding
+        unit_of_measurement: V
+        device_class: voltage
+        state_class: measurement
+        count: 1
+        scale: 0.01
+        offset: 0
+        precision: 1
+        data_type: uint16
+      - name: Iammeter_3_modbus_Current_A
+        unique_id: 2452716747607
+        slave: 1
+        address: 1
+        input_type: holding
+        unit_of_measurement: A
+        device_class: current
+        state_class: measurement
+        count: 1
+        scale: 0.01
+        offset: 0
+        precision: 1
+        data_type: uint16
+      - name: Iammeter_3_modbus_Power_A
+        unique_id: 2452716747609
+        slave: 1
+        address: 2
+        input_type: holding
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        count: 2
+        scale: 1
+        offset: 0
+        precision: 0
+        data_type: int32
+        scan_interval: 5
+      - name: Iammeter_3_modbus_ImportEnergy_A
+        unique_id: 2452716747611
+        slave: 1
+        address: 4
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.00125
+        offset: 0
+        precision: 2
+        data_type: uint32
+      - name: Iammeter_3_modbus_ExportGrid_A
+        unique_id: 2452716747613
+        slave: 1
+        address: 6
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.00125
+        offset: 0
+        precision: 2
+        data_type: uint32
+      - name: Iammeter_3_modbus_PF_A
+        unique_id: 2452716747615
+        slave: 1
+        address: 8
+        input_type: holding
+        unit_of_measurement: '%'
+        device_class: power_factor
+        state_class: measurement
+        count: 1
+        scale: 0.001
+        offset: 0
+        precision: 2
+        data_type: uint16
+
+      - name: Iammeter_3_modbus_Voltage_B
+        unique_id: 2452716747617
+        slave: 1
+        address: 10
+        input_type: holding
+        unit_of_measurement: V
+        device_class: voltage
+        state_class: measurement
+        count: 1
+        scale: 0.01
+        offset: 0
+        precision: 1
+        data_type: uint16
+      - name: Iammeter_3_modbus_Current_B
+        unique_id: 2452716747619
+        slave: 1
+        address: 11
+        input_type: holding
+        unit_of_measurement: A
+        device_class: current
+        state_class: measurement
+        count: 1
+        scale: 0.01
+        offset: 0
+        precision: 1
+        data_type: uint16
+      - name: Iammeter_3_modbus_Power_B
+        unique_id: 2452716747621
+        slave: 1
+        address: 12
+        input_type: holding
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        count: 2
+        scale: 1
+        offset: 0
+        precision: 0
+        data_type: int32
+        scan_interval: 5
+      - name: Iammeter_3_modbus_ImportEnergy_B
+        unique_id: 2452716747623
+        slave: 1
+        address: 14
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.00125
+        offset: 0
+        precision: 2
+        data_type: uint32
+      - name: Iammeter_3_modbus_ExportGrid_B
+        unique_id: 2452716747625
+        slave: 1
+        address: 16
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.00125
+        offset: 0
+        precision: 2
+        data_type: uint32
+      - name: Iammeter_3_modbus_PF_B
+        unique_id: 2452716747627
+        slave: 1
+        address: 18
+        input_type: holding
+        unit_of_measurement: '%'
+        device_class: power_factor
+        state_class: measurement
+        count: 1
+        scale: 0.001
+        offset: 0
+        precision: 2
+        data_type: uint16
+
+      - name: Iammeter_3_modbus_Voltage_C
+        unique_id: 2452716747629
+        slave: 1
+        address: 20
+        input_type: holding
+        unit_of_measurement: V
+        device_class: voltage
+        state_class: measurement
+        count: 1
+        scale: 0.01
+        offset: 0
+        precision: 1
+        data_type: uint16
+      - name: Iammeter_3_modbus_Current_C
+        unique_id: 2452716747631
+        slave: 1
+        address: 21
+        input_type: holding
+        unit_of_measurement: A
+        device_class: current
+        state_class: measurement
+        count: 1
+        scale: 0.01
+        offset: 0
+        precision: 1
+        data_type: uint16
+      - name: Iammeter_3_modbus_Power_C
+        unique_id: 2452716747633
+        slave: 1
+        address: 22
+        input_type: holding
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        count: 2
+        scale: 1
+        offset: 0
+        precision: 0
+        data_type: int32
+        scan_interval: 5
+      - name: Iammeter_3_modbus_ImportEnergy_C
+        unique_id: 2452716747635
+        slave: 1
+        address: 24
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.00125
+        offset: 0
+        precision: 2
+        data_type: uint32
+      - name: Iammeter_3_modbus_ExportGrid_C
+        unique_id: 2452716747637
+        slave: 1
+        address: 26
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.00125
+        offset: 0
+        precision: 2
+        data_type: uint32
+      - name: Iammeter_3_modbus_PF_C
+        unique_id: 2452716747639
+        slave: 1
+        address: 28
+        input_type: holding
+        unit_of_measurement: '%'
+        device_class: power_factor
+        state_class: measurement
+        count: 1
+        scale: 0.001
+        offset: 0
+        precision: 2
+        data_type: uint16
+
+      - name: Iammeter_3_modbus_Frequency
+        unique_id: 2452716747641
+        slave: 1
+        address: 30
+        input_type: holding
+        unit_of_measurement: Hz
+        device_class: frequency
+        state_class: measurement
+        count: 1
+        scale: 0.01
+        offset: 0
+        precision: 1
+        data_type: uint16
+
+      - name: Iammeter_3_modbus_Power_SUM
+        unique_id: 2452716747643
+        slave: 1
+        address: 32
+        input_type: holding
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        count: 2
+        scale: 1
+        offset: 0
+        precision: 0
+        data_type: int32
+        scan_interval: 5
+      - name: Iammeter_3_modbus_ImportEnergy_SUM
+        unique_id: 2452716747645
+        slave: 1
+        address: 34
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.00125
+        offset: 0
+        precision: 2
+        data_type: uint32
+      - name: Iammeter_3_modbus_ExportGrid_SUM
+        unique_id: 2452716747647
+        slave: 1
+        address: 36
+        input_type: holding
+        unit_of_measurement: kWh
+        device_class: energy
+        state_class: total_increasing
+        count: 2
+        scale: 0.00125
+        offset: 0
+        precision: 2
+        data_type: uint32
+        
