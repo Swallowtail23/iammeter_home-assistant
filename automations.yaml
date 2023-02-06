@@ -81,3 +81,15 @@
         data:
           option: offpeak
   mode: single
+- id: '1641518032821'
+  alias: 'Energy: Increment Supply Charge'
+  description: ''
+  trigger:
+  - platform: time
+    at: 00:01:00
+  condition: []
+  action:
+  - service: input_number.increment
+    target:
+      entity_id: input_number.supply_charge
+  mode: single
