@@ -13,6 +13,7 @@ WEM3080:
 - CT clamp on main grid feed
 
 I have 13.3kW of solar panels, connected to a GE 10kW hybrid inverter (GoodWe device, sold under GE brand)
+No battery at the moment, so 'solar energy' = 'inverter in energy', but I am altering sensors to allow for battery energy retention, in which case 'inverter in energy' + 'energy to battery' = 'solar energy', so the sensor definitions are changing to reflect that.
 
 ## Helpers
 
