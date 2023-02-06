@@ -1,0 +1,6 @@
+supply_charge:
+    name: Supply Charge
+    min: 0
+    max: 1000
+    step: 0.001
+    unit_of_measurement: kWh
