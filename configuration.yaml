@@ -555,6 +555,7 @@ template:
       - name: "Self used energy hour"
         unit_of_measurement: 'kWh'
         device_class: energy
+        state_class: total_increasing
         availability: >-
           {{
             states('sensor.energy_from_inverter_daily') not in ['unavailable', 'unknown', 'none']
@@ -571,6 +572,7 @@ template:
       - name: "Self used energy day"
         unit_of_measurement: 'kWh'
         device_class: energy
+        state_class: total_increasing
         availability: >-
           {{
             states('sensor.energy_from_inverter_daily') not in ['unavailable', 'unknown', 'none']
@@ -587,6 +589,7 @@ template:
       - name: "Self used energy month"
         unit_of_measurement: 'kWh'
         device_class: energy
+        state_class: total_increasing
         availability: >-
           {{
             states('sensor.energy_from_inverter_monthly') not in ['unavailable', 'unknown', 'none']
@@ -677,6 +680,7 @@ template:
       - name: "Consumed energy hour"
         unit_of_measurement: 'kWh'
         device_class: energy
+        state_class: total_increasing
         availability: >-
           {{
             states('sensor.grid_consumption_energy_hourly') not in ['unavailable', 'unknown', 'none'] 
@@ -696,6 +700,7 @@ template:
       - name: "Consumed energy day"
         unit_of_measurement: 'kWh'
         device_class: energy
+        state_class: total_increasing
         availability: >-
           {{
             states('sensor.grid_consumption_energy_daily') not in ['unavailable', 'unknown', 'none'] 
@@ -715,6 +720,7 @@ template:
       - name: "Consumed energy month"
         unit_of_measurement: 'kWh'
         device_class: energy
+        state_class: total_increasing
         availability: >-
           {{
             states('sensor.grid_consumption_energy_monthly') not in ['unavailable', 'unknown', 'none'] 
