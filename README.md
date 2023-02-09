@@ -34,6 +34,12 @@ No battery at the moment, so 'solar energy' = 'inverter in energy', but I am alt
 - input_number.electricity_shoulder_rate
 - input_number.supply_charge
 
+## Sensors
+
+- A set of sensors from the Iammeters, e.g. ```sensor.iammeter_1_modbus_importenergy```
+- A set of filtered power sensors for when the above are unavailable, unknown or none, e.g. ```sensor.inverter_power```
+- 
+
 ## Energy Dashboard
 
 Extract of dashboard, noting that several of the views are incomplete or work in progress.
