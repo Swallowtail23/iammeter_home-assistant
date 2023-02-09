@@ -24,7 +24,7 @@ homeassistant:
       device_class: energy
       state_class: total_increasing
     sensor.iammeter_3_modbus_importenergy_a:
-      last_reset: '1970-01-01T00:00:00+00:00'
+      last_reset: '2023-01-19T18:30:00+10:00'
       device_class: energy
       state_class: total_increasing
     sensor.iammeter_3_modbus_importenergy_b:
@@ -51,8 +51,14 @@ homeassistant:
     sensor.iammeter_3_modbus_power_c:
       device_class: power
       state_class: measurement
-
-## Customisations for "Time of Use" tariff sensors
+    sensor.rack_energy:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.eaton_5sx_consumed_energy:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
     sensor.grid_offpeak_energy_import:
       last_reset: '1970-01-01T00:00:00+00:00'
       device_class: energy
@@ -74,6 +80,42 @@ homeassistant:
       device_class: energy
       state_class: total_increasing
     sensor.grid_shoulder_energy_export:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.grid_consumption_energy:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.exported_energy:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.hot_water_energy:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.pv_solar_energy:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.energy_from_inverter:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.energy_to_inverter:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.ac_energy:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.self_use_energy:
+      last_reset: '1970-01-01T00:00:00+00:00'
+      device_class: energy
+      state_class: total_increasing
+    sensor.consumed_energy:
       last_reset: '1970-01-01T00:00:00+00:00'
       device_class: energy
       state_class: total_increasing
@@ -450,17 +492,17 @@ template:
           {{ states('sensor.iammeter_3_modbus_importenergy_a') | float }}
         unique_id: 2452716747743
 
-    ## This one will need to be updated once new inverter is online, to its solar production value
-      - name: "Solar yield energy"
+## Sensor from Goodwe inverter - 
+
+      - name: "PV (solar) energy"
         unit_of_measurement: 'kWh'
         device_class: energy
         state_class: total_increasing
         availability: >-
-          {{ states('sensor.iammeter_3_modbus_importenergy_b') not in ['unavailable', 'unknown', 'none', 0] }}
+          {{ states('sensor.total_pv_generation') not in ['unavailable', 'unknown', 'none'] }}
         state: >-
-          {{ states('sensor.iammeter_3_modbus_importenergy_b')|float }}
-        unique_id: 2452716747557
-    ##
+          {{ states('sensor.total_pv_generation') | float }}
+        unique_id: 2452716747913
 
       - name: "Energy from inverter"
         unit_of_measurement: 'kWh'
@@ -510,6 +552,108 @@ template:
           }}
         unique_id: 2452716747559
 
+      - name: "Self used energy hour"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        availability: >-
+          {{
+            states('sensor.energy_from_inverter_daily') not in ['unavailable', 'unknown', 'none']
+              and 
+            states('sensor.exported_energy_daily') not in ['unavailable', 'unknown', 'none']
+          }}
+        state: >-
+          {{ 
+            states('sensor.energy_from_inverter_hourly') | float -
+            states('sensor.exported_energy_hourly') | float
+          }}
+        unique_id: 2452716747914
+
+      - name: "Self used energy day"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        availability: >-
+          {{
+            states('sensor.energy_from_inverter_daily') not in ['unavailable', 'unknown', 'none']
+              and 
+            states('sensor.exported_energy_daily') not in ['unavailable', 'unknown', 'none']
+          }}
+        state: >-
+          {{ 
+            states('sensor.energy_from_inverter_daily') | float -
+            states('sensor.exported_energy_daily') | float
+          }}
+        unique_id: 2452716747920
+
+      - name: "Self used energy month"
+        unit_of_measurement: 'kWh'
+        device_class: energy
+        availability: >-
+          {{
+            states('sensor.energy_from_inverter_monthly') not in ['unavailable', 'unknown', 'none']
+              and 
+            states('sensor.exported_energy_monthly') not in ['unavailable', 'unknown', 'none']
+          }}
+        state: >-
+          {{ 
+            states('sensor.energy_from_inverter_daily') | float -
+            states('sensor.exported_energy_daily') | float
+          }}
+        unique_id: 2452716747912
+
+      - name: "Self consumption rate (hourly)"
+        unit_of_measurement: '%'
+        state_class: measurement
+        availability: >-
+          {{
+            states('sensor.pv_energy_hourly') not in ['unavailable', 'unknown', 'none'] 
+              and 
+            states('sensor.self_used_energy_hour') not in ['unavailable', 'unknown', 'none']
+          }}
+        state: >-
+          {{ 
+            none if states('sensor.pv_energy_hourly') | float(0) == 0 
+            else
+            ((states('sensor.self_used_energy_hour') | float / 
+            states('sensor.pv_energy_hourly') | float) *100) | round(1)
+          }}
+        unique_id: 2452716747895
+
+      - name: "Self consumption rate (daily)"
+        unit_of_measurement: '%'
+        state_class: measurement
+        availability: >-
+          {{
+            states('sensor.pv_energy_daily') not in ['unavailable', 'unknown', 'none'] 
+              and 
+            states('sensor.self_used_energy_day') not in ['unavailable', 'unknown', 'none']
+          }}
+        state: >-
+          {{ 
+            none if states('sensor.pv_energy_daily') | float(0) == 0 
+            else
+            ((states('sensor.self_used_energy_day') | float / 
+            states('sensor.pv_energy_daily') | float) *100) | round(2)
+          }}
+        unique_id: 2452716747897
+
+      - name: "Self consumption rate (monthly)"
+        unit_of_measurement: '%'
+        state_class: measurement
+        availability: >-
+          {{
+            states('sensor.pv_energy_monthly') not in ['unavailable', 'unknown', 'none'] 
+              and 
+            states('sensor.self_used_energy_month') not in ['unavailable', 'unknown', 'none']
+          }}
+        state: >-
+          {{ 
+            none if states('sensor.pv_energy_monthly') | float(0) == 0 
+            else
+            ((states('sensor.self_used_energy_month') | float / 
+            states('sensor.pv_energy_monthly') | float) *100) | round(1)
+          }}
+        unique_id: 2452716747899
+
       - name: "Consumed energy"
         unit_of_measurement: 'kWh'
         device_class: energy
@@ -530,59 +674,62 @@ template:
           }}
         unique_id: 2452716747563
 
-      - name: "Self consumption rate (hourly)"
-        unit_of_measurement: '%'
-        state_class: measurement
+      - name: "Consumed energy hour"
+        unit_of_measurement: 'kWh'
+        device_class: energy
         availability: >-
           {{
-            states('sensor.solar_energy_hourly') not in ['unavailable', 'unknown', 'none'] 
+            states('sensor.grid_consumption_energy_hourly') not in ['unavailable', 'unknown', 'none'] 
               and 
-            states('sensor.self_used_energy_hourly') not in ['unavailable', 'unknown', 'none']
+            states('sensor.energy_from_inverter_hourly') not in ['unavailable', 'unknown', 'none']
+              and
+            states('sensor.exported_energy_hourly') not in ['unavailable', 'unknown', 'none']
           }}
         state: >-
           {{ 
-            none if states('sensor.solar_energy_hourly')|float(0) == 0 
-            else
-            ((states('sensor.self_used_energy_hourly')|float / 
-            states('sensor.solar_energy_hourly')|float) *100) | round(1)
+            states('sensor.grid_consumption_energy_hourly') | float + 
+            states('sensor.energy_from_inverter_hourly') | float - 
+            states('sensor.exported_energy_hourly') | float 
           }}
-        unique_id: 2452716747895
+        unique_id: 2452716747924
 
-      - name: "Self consumption rate (daily)"
-        unit_of_measurement: '%'
-        state_class: measurement
+      - name: "Consumed energy day"
+        unit_of_measurement: 'kWh'
+        device_class: energy
         availability: >-
           {{
-            states('sensor.solar_energy_daily') not in ['unavailable', 'unknown', 'none'] 
+            states('sensor.grid_consumption_energy_daily') not in ['unavailable', 'unknown', 'none'] 
               and 
-            states('sensor.self_used_energy_daily') not in ['unavailable', 'unknown', 'none']
+            states('sensor.energy_from_inverter_daily') not in ['unavailable', 'unknown', 'none']
+              and
+            states('sensor.exported_energy_daily') not in ['unavailable', 'unknown', 'none']
           }}
         state: >-
           {{ 
-            none if states('sensor.solar_energy_daily')|float(0) == 0 
-            else
-            ((states('sensor.self_used_energy_daily')|float / 
-            states('sensor.solar_energy_daily')|float) *100) | round(1)
+            states('sensor.grid_consumption_energy_daily') | float + 
+            states('sensor.energy_from_inverter_daily') | float - 
+            states('sensor.exported_energy_daily') | float 
           }}
-        unique_id: 2452716747897
+        unique_id: 2452716747926
 
-      - name: "Self consumption rate (monthly)"
-        unit_of_measurement: '%'
-        state_class: measurement
+      - name: "Consumed energy month"
+        unit_of_measurement: 'kWh'
+        device_class: energy
         availability: >-
           {{
-            states('sensor.solar_energy_monthly') not in ['unavailable', 'unknown', 'none'] 
+            states('sensor.grid_consumption_energy_monthly') not in ['unavailable', 'unknown', 'none'] 
               and 
-            states('sensor.self_used_energy_monthly') not in ['unavailable', 'unknown', 'none']
+            states('sensor.energy_from_inverter_monthly') not in ['unavailable', 'unknown', 'none']
+              and
+            states('sensor.exported_energy_monthly') not in ['unavailable', 'unknown', 'none']
           }}
         state: >-
           {{ 
-            none if states('sensor.solar_energy_monthly')|float(0) == 0 
-            else
-            ((states('sensor.self_used_energy_monthly')|float / 
-            states('sensor.solar_energy_monthly')|float) *100) | round(1)
+            states('sensor.grid_consumption_energy_monthly') | float + 
+            states('sensor.energy_from_inverter_monthly') | float - 
+            states('sensor.exported_energy_monthly') | float 
           }}
-        unique_id: 2452716747899
+        unique_id: 2452716747928
 
 # Old format sensors
 sensor:
