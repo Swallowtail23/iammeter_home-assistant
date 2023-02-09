@@ -36,9 +36,13 @@ No battery at the moment, so 'solar energy' = 'inverter in energy', but I am alt
 
 ## Sensors
 
-- A set of sensors from the Iammeters, e.g. ```sensor.iammeter_1_modbus_importenergy```
-- A set of filtered power sensors for when the above are unavailable, unknown or none, e.g. ```sensor.inverter_power```
-- 
+A large range of sensors are defined, not all are currently used. Energy sensors typically are also setup with utility meters for hourly, daily and monthly use.
+- A set of sensors from the Iammeters, e.g. ```sensor.iammeter_1_modbus_importenergy``` defined from modbus connection to the Iammeters
+- A set of filtered power and energy sensors for when the Iammeter sensors are unavailable, unknown or none, e.g. ```sensor.inverter_power```, ```sensor.exported_energy```
+- Electricity time of use (TOU) power sensors to track power being imported/exported under different tariffs, e.g. ```sensor.grid_shoulder_power```
+- TOU sensors for use in graphs (they have 'null' instead of zero so the line does not show on apexcharts on the dashboard)
+- Riemann integration sensors for TOU electricity to track total energy per tariff, imported or exported
+- Calculated sensors for self-usage, self-consumption rate and consumed energy
 
 ## Energy Dashboard
 
