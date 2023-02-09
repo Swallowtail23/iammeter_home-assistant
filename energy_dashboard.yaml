@@ -1,0 +1,544 @@
+title: Energy
+path: energy
+icon: mdi:lightning-bolt
+cards:
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: "custom:button-card"
+            template: card_generic_swap
+            entity: sensor.solcast_forecast_today
+            name: Solcast today
+          - type: "custom:button-card"
+            template: card_generic_swap
+            entity: sensor.solcast_forecast_tomorrow
+            name: Solcast tomorrow
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: custom:power-wheel-card
+            title_power: Power distribution
+            solar_power_entity: sensor.inverter_power
+            grid_power_entity: sensor.grid_power
+            production_is_positive: false
+            solar_icon: mdi:white-balance-sunny
+            grid_icon: mdi:flash
+            home_icon: mdi:home-assistant
+            power_decimals: 1
+            color_icons: true
+            consuming_color: '#33ff33'
+            producing_color: '#dd5500'
+            invert_grid_colors: false
+            active_arrow_color: '#ffff00'
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: energy-date-selection
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: energy-usage-graph
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: energy-solar-graph
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: energy-distribution
+            link_dashboard: true
+          - type: custom:button-card
+            template: edge
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: conditional
+            conditions:
+              - entity: input_text.utility_current_electricity_tou_band
+                state: 'peak'
+            card:
+              type: custom:apexcharts-card
+              graph_span: 1d
+              update_interval: 5sec
+              show:
+                last_updated: true
+              span:
+                start: day
+              header:
+                show: true
+                title: Power
+                show_states: true
+                colorize_states: true
+              apex_config:
+                legend:
+                  show: false
+                chart:
+                  height: 250
+                  zoom:
+                    autoScaleYaxis: false
+                  toolbar:
+                    show: false
+                  xaxis.type: datetime
+                stroke:
+                  width: 1
+                  curve: straight
+              all_series_config:
+                type: area
+                group_by:
+                  func: avg
+                  duration: 5min
+                extend_to: false
+                show:
+                  legend_value: false
+              series:
+                - entity: sensor.inverter_power
+                  name: Inverter power
+                  color: rgb(86,166,75)
+                  opacity: 0.4
+                - entity: sensor.total_load_power
+                  name: Total load power
+                  color: rgb(50,116,217)
+                  opacity: 0.3
+                - entity: sensor.grid_offpeak_power_graph
+                  name: Off-peak power
+                  invert: true
+                  color: rgb(232,165,53)
+                  opacity: 0.3
+                  show:
+                    in_header: false
+                - entity: sensor.grid_shoulder_power_graph
+                  name: Shoulder power
+                  invert: true
+                  color: rgb(242,204,12)
+                  opacity: 0.5
+                  show:
+                    in_header: false
+                - entity: sensor.grid_peak_power_graph
+                  name: Peak power
+                  invert: true
+                  color: rgb(224,47,68)
+                  opacity: 0.5
+                  show:
+                    in_header: false
+                - entity: sensor.grid_power
+                  name: Grid power (peak)
+                  color: rgb(224,47,68)
+                  show:
+                    in_chart: false
+          - type: conditional
+            conditions:
+              - entity: input_text.utility_current_electricity_tou_band
+                state: 'shoulder'
+            card:
+              type: custom:apexcharts-card
+              graph_span: 1d
+              update_interval: 5sec
+              show:
+                last_updated: true
+              span:
+                start: day
+              header:
+                show: true
+                title: Power
+                show_states: true
+                colorize_states: true
+              apex_config:
+                legend:
+                  show: false
+                chart:
+                  height: 250
+                  zoom:
+                    autoScaleYaxis: false
+                  toolbar:
+                    show: false
+                  xaxis.type: datetime
+                stroke:
+                  width: 1
+                  curve: straight
+              all_series_config:
+                type: area
+                group_by:
+                  func: avg
+                  duration: 5min
+                extend_to: false
+                show:
+                  legend_value: false
+              series:
+                - entity: sensor.inverter_power
+                  name: Inverter power
+                  color: rgb(86,166,75)
+                  opacity: 0.4
+                - entity: sensor.total_load_power
+                  name: Total load power
+                  color: rgb(50,116,217)
+                  opacity: 0.3
+                - entity: sensor.grid_offpeak_power_graph
+                  name: Off-peak power
+                  invert: true
+                  color: rgb(232,165,53)
+                  opacity: 0.3
+                  show:
+                    in_header: false
+                - entity: sensor.grid_shoulder_power_graph
+                  name: Shoulder power
+                  invert: true
+                  color: rgb(242,204,12)
+                  opacity: 0.5
+                  show:
+                    in_header: false
+                - entity: sensor.grid_peak_power_graph
+                  name: Peak power
+                  invert: true
+                  color: rgb(224,47,68)
+                  opacity: 0.5
+                  show:
+                    in_header: false
+                - entity: sensor.grid_power
+                  name: Grid power (shoulder)
+                  color: rgb(242,204,12)
+                  show:
+                    in_chart: false
+          - type: conditional
+            conditions:
+              - entity: input_text.utility_current_electricity_tou_band
+                state: 'offpeak'
+            card:
+              type: custom:apexcharts-card
+              graph_span: 1d
+              update_interval: 5sec
+              show:
+                last_updated: true
+              span:
+                start: day
+              header:
+                show: true
+                title: Power
+                show_states: true
+                colorize_states: true
+              apex_config:
+                legend:
+                  show: false
+                chart:
+                  height: 250
+                  zoom:
+                    autoScaleYaxis: false
+                  toolbar:
+                    show: false
+                  xaxis.type: datetime
+                stroke:
+                  width: 1
+                  curve: straight
+              all_series_config:
+                type: area
+                group_by:
+                  func: avg
+                  duration: 5min
+                extend_to: false
+                show:
+                  legend_value: false
+              series:
+                - entity: sensor.inverter_power
+                  name: Inverter power
+                  color: rgb(86,166,75)
+                  opacity: 0.4
+                - entity: sensor.total_load_power
+                  name: Total load power
+                  color: rgb(50,116,217)
+                  opacity: 0.3
+                - entity: sensor.grid_offpeak_power_graph
+                  name: Off-peak power
+                  invert: true
+                  color: rgb(232,165,53)
+                  opacity: 0.3
+                  show:
+                    in_header: false
+                - entity: sensor.grid_shoulder_power_graph
+                  name: Shoulder power
+                  invert: true
+                  color: rgb(242,204,12)
+                  opacity: 0.5
+                  show:
+                    in_header: false
+                - entity: sensor.grid_peak_power_graph
+                  name: Peak power
+                  invert: true
+                  color: rgb(224,47,68)
+                  opacity: 0.5
+                  show:
+                    in_header: false
+                - entity: sensor.grid_power
+                  name: Grid power (offpeak)
+                  color: rgb(232,165,53)
+                  show:
+                    in_chart: false
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: custom:apexcharts-card
+            graph_span: 8d
+            update_interval: 2min
+            show:
+              last_updated: true
+            span:
+              end: day
+            header:
+              show: true
+              title: Daily Energy
+              show_states: true
+              colorize_states: true
+            apex_config:
+              legend:
+                show: false
+              chart:
+                toolbar:
+                  show: false
+                height: 250
+                xaxis.type: datetime
+            all_series_config:
+              group_by:
+                func: last
+                duration: 24h
+              type: column
+            series:
+              - entity: sensor.energy_from_inverter_daily
+                name: Energy from inverter
+                color: rgb(86,166,75)
+              - entity: sensor.exported_energy_daily
+                name: Energy exported
+                color: rgb(151,125,255)
+              - entity: sensor.grid_consumption_energy_daily
+                name: Energy imported
+                color: rgb(224,47,68)
+              - entity: sensor.consumed_energy_day
+                name: Total consumed
+                color: rgb(50,116,217)
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: custom:apexcharts-card
+            graph_span: 1d
+            update_interval: 15sec
+            show:
+              last_updated: true
+            span:
+              start: day
+            header:
+              show: true
+              title: Aircon/Pool Power
+              show_states: true
+              colorize_states: true
+            apex_config:
+              legend:
+                show: false
+              chart:
+                height: 200
+                zoom:
+                  type: x
+                  enabled: true
+                  autoScaleYaxis: false
+                toolbar:
+                  show: false
+                  autoSelected: zoom
+                xaxis.type: datetime
+              stroke:
+                width: 1
+                curve: smooth
+            all_series_config:
+              type: area
+              group_by:
+                func: avg
+                duration: 5min
+              extend_to: false
+              show:
+                legend_value: false
+            series:
+              - entity: sensor.iammeter_3_modbus_power_c
+                name: Aircon power
+                opacity: 0.5
+              - entity: sensor.pool_pump_smart_switch_electric_consumption_w
+                name: Pool power
+                opacity: 0.5
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: custom:apexcharts-card
+            graph_span: 8d
+            update_interval: 2min
+            show:
+              last_updated: true
+            span:
+              end: day
+            header:
+              show: true
+              title: Daily Aircon/Pool Energy
+              show_states: true
+              colorize_states: true
+            apex_config:
+              legend:
+                show: false
+              chart:
+                toolbar:
+                  show: false
+                height: 200
+                xaxis.type: datetime
+            all_series_config:
+              group_by:
+                func: last
+                duration: 24h
+              type: column
+            series:
+              - entity: sensor.ac_energy_daily
+                name: Aircon energy
+              - entity: sensor.pool_pump_energy_daily
+                name: Pool energy
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: energy-sources-table
+          - type: custom:button-card
+            template: edge
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: energy-grid-neutrality-gauge
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: energy-solar-consumed-gauge
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: energy-carbon-consumed-gauge
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.grid_consumption_tou_energy_daily_offpeak
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.grid_consumption_tou_energy_daily_shoulder_am
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.grid_consumption_tou_energy_daily_peak
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.grid_consumption_tou_energy_daily_shoulder_pm
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.grid_consumption_energy_daily
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.energy_from_inverter_daily
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.self_used_energy_day
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.exported_energy_daily
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.consumed_energy_day
+          - type: custom:button-card
+            template: edge
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge
+          - type: sensor
+            entity: sensor.self_consumption_rate_daily
+          - type: custom:button-card
+            template: edge
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:button-card
+            template: edge            
+          - type: energy-devices-graph
+          - type: custom:button-card
+            template: edge
