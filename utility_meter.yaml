@@ -14,22 +14,22 @@ daily_supply_fee_correction:
     tariffs:
       - count
 
-solar_energy_hourly:
-    source: sensor.solar_energy
-    name: "Solar yield energy (hourly)"
-    unique_id: 2452716747847
+pv_energy_hourly:
+    source: sensor.pv_solar_energy
+    name: "PV energy (hourly)"
+    unique_id: 2452716747908
     cycle: hourly
 
-solar_energy_daily:
-    source: sensor.solar_energy
-    name: "Solar yield energy (daily)"
-    unique_id: 2452716747843
+pv_energy_daily:
+    source: sensor.pv_solar_energy
+    name: "PV energy (daily)"
+    unique_id: 2452716747910
     cycle: daily
 
-solar_energy_monthly:
-    source: sensor.solar_energy
-    name: "Solar yield energy (monthly)"
-    unique_id: 2452716747845
+pv_energy_monthly:
+    source: sensor.pv_solar_energy
+    name: "PV energy (monthly)"
+    unique_id: 2452716747912
     cycle: monthly
 
 energy_from_inverter_hourly:
