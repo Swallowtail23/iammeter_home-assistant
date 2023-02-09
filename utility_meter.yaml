@@ -104,42 +104,6 @@ exported_energy_monthly:
     unique_id: 2452716747813
     cycle: monthly
 
-self_used_energy_hourly:
-    source: sensor.self_use_energy
-    name: "Self used energy (hourly)"
-    unique_id: 2452716747867
-    cycle: hourly
-
-self_used_energy_daily:
-    source: sensor.self_use_energy
-    name: "Self used energy (daily)"
-    unique_id: 2452716747869
-    cycle: daily
-
-self_used_energy_monthly:
-    source: sensor.self_use_energy
-    name: "Self used energy (monthly)"
-    unique_id: 2452716747871
-    cycle: monthly
-
-consumed_energy_hourly:
-    source: sensor.consumed_energy
-    name: "Consumed energy (hourly)"
-    unique_id: 2452716747873
-    cycle: hourly
-
-consumed_energy_daily:
-    source: sensor.consumed_energy
-    name: "Consumed energy (daily)"
-    unique_id: 2452716747875
-    cycle: daily
-
-consumed_energy_monthly:
-    source: sensor.consumed_energy
-    name: "Consumed energy (monthly)"
-    unique_id: 2452716747877
-    cycle: monthly
-
 ac_energy_daily:
     source: sensor.ac_energy
     unique_id: 2452716747819
