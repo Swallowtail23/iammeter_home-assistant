@@ -141,3 +141,39 @@ grid_consumption_tou_energy_monthly:
       - offpeak
       - shoulder_am
       - shoulder_pm
+
+grid_offpeak_energy_export_daily:
+    name: "Grid offpeak energy export (daily)"
+    unique_id: 2452716747938
+    source: sensor.grid_offpeak_energy_export
+    cycle: daily
+
+grid_peak_energy_export_daily:
+    name: "Grid peak energy export (daily)"
+    unique_id: 2452716747932
+    source: sensor.grid_peak_energy_export
+    cycle: daily
+
+grid_shoulder_energy_export_daily:
+    name: "Grid shoulder energy export (daily)"
+    unique_id: 2452716747934
+    source: sensor.grid_shoulder_energy_export
+    cycle: daily
+
+grid_offpeak_energy_import_daily:
+    name: "Grid offpeak energy import (daily)"
+    unique_id: 2452716747936
+    source: sensor.grid_offpeak_energy_import
+    cycle: daily
+
+grid_peak_energy_import_daily:
+    name: "Grid peak energy import (daily)"
+    unique_id: 2452716747940
+    source: sensor.grid_peak_energy_import
+    cycle: daily
+
+grid_shoulder_energy_import_daily:
+    name: "Grid shoulder energy import (daily)"
+    unique_id: 2452716747942
+    source: sensor.grid_shoulder_energy_import
+    cycle: daily
