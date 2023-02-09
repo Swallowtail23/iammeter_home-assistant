@@ -4,7 +4,7 @@ Full details of my energy management in Home Assistant, with Iammeter meters.
 
 ## Local energy provider setup
 
-My provider has three time of use tariffs - off-peak, shoulder and peak. Off-peak runs from 10pm to 8am, shoulder (am) from 7am to 4pm, peak from 4pm to 8pm, shoulder (pm) from 8pm to 10pm. I get a small 'feed-in tariff' (AU$0.08/kWh) for energy returned to the grid (this is capped by my energy provider at 5kW).
+My provider has three time of use tariffs - off-peak, shoulder and peak. Off-peak runs from 10pm to 8am, shoulder (am) from 7am to 4pm, peak from 4pm to 8pm, shoulder (pm) from 8pm to 10pm. I get a small 'feed-in tariff' (AU$0.08/kWh) for energy returned to the grid (this is capped by my energy provider at a rate of 5kW, set and controlled by my inverter, which has its own smart meter on the grid feed line).
 
 I have a WEM3080T and a WEM3080, setup as follows:
 
@@ -37,5 +37,7 @@ No battery at the moment, so 'solar energy' = 'inverter in energy', but I am alt
 ## Energy Dashboard
 
 Extract of dashboard, noting that several of the views are incomplete or work in progress.
+
+The dashboard uses conditional cards and apexcharts. The conditional cards drive the colours for the different time of use rates/tariffs.
 
 ![image](https://user-images.githubusercontent.com/8214128/217789249-0c899624-baef-44b6-8d44-9b9f574c7bac.png)
