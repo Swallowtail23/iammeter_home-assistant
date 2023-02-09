@@ -36,4 +36,6 @@ No battery at the moment, so 'solar energy' = 'inverter in energy', but I am alt
 
 ## Energy Dashboard
 
+Extract of dashboard, noting that several of the views are incomplete or work in progress.
+
 ![image](https://user-images.githubusercontent.com/8214128/217789249-0c899624-baef-44b6-8d44-9b9f574c7bac.png)
